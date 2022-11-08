@@ -1,0 +1,29 @@
+version: "3.7"
+
+services:
+  influxdb:
+    image: influxdb:1.8.10
+    ports:
+      - "8086:8086"
+    networks:
+      - osrs-network
+    volumes:
+      - influxdb:/var/lib/influxdb
+  osrs-metrics:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - HOST=influxdb
+      - DB_NAME=osrs_hs_metrics
+    links:
+      - influxdb
+    networks:
+      - osrs-network
+    volumes:
+      - osrs-metrics:/usr/src/app
+networks:
+  osrs-network:
+volumes:
+  influxdb:
+  osrs-metrics:
