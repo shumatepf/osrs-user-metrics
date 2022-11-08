@@ -96,10 +96,11 @@ def write():
     return users_dict
 
 
-@scheduler.task('cron', minute='*', hour='*', day='*', month='*', day_of_week='*')
+@scheduler.task('cron', minute='0', hour='3', day='*', month='*', day_of_week='*')
 def scrape():
     """
     Reads list of users, scrapes their user data, and dumps into db
+    Cron runs every day at 3:00 AM
     """
 
     date = datetime.now().ctime()
