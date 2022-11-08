@@ -21,7 +21,6 @@ def get_users(names):
             "tags": {
                 "name": name
             },
-            "time": datetime.now(),
             "fields": get_user(name)
         }
         # get_user(name)

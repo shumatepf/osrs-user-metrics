@@ -27,7 +27,6 @@ scheduler.start()
     "tags": {
         "name": "Friendless98"
     },
-    "time": datetime.now(),
     "fields": {
         "attack": 123,
         "defence": 321,
@@ -83,6 +82,7 @@ def user():
 def write():
     """
     Write user {name} to db
+    TO BE DEPRICATED - TOO DANGEROUS
     """
     data = request.get_json()
 
@@ -98,17 +98,23 @@ def write():
 
 @scheduler.task('cron', minute='*', hour='*', day='*', month='*', day_of_week='*')
 def scrape():
+    """
+    Reads list of users, scrapes their user data, and dumps into db
+    """
 
     date = datetime.now().ctime()
+    logging.info("Beginning scraping at " + date)
 
-    logging.info("Scraping at " + date)
     with open('users.json') as f:
         users = json.load(f)
         users_dict = osrs.get_users(users)
-        print(users_dict)
-    print("cron job")
+        client.write_points(users_dict)
+    
+    date = datetime.now().ctime()
+    logging.info("Finished scraping at " + date)
+
     return True
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

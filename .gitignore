@@ -3,3 +3,4 @@ __pycache__
 logs.log
 users.json
 notes.txt
+test.py
