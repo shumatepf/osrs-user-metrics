@@ -1,4 +1,4 @@
 flask
 influxdb
 OSRSBytes
-Flask-APScheduler
+flask_apscheduler
