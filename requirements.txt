@@ -2,3 +2,5 @@ flask
 influxdb
 OSRSBytes
 flask_apscheduler
+asyncio
+aiohttp

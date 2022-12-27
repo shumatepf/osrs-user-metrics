@@ -1,29 +1,54 @@
 from OSRSBytes import Hiscores
 from datetime import datetime
 
-skills = ["attack", "strength", "defense", "ranged", "prayer", "magic", "runecrafting", "hitpoints", "crafting", "mining", "smithing", "fishing",
-          "cooking", "firemaking", "woodcutting", "agility", "herblore", "thieving", "fletching", "slayer", "farming", "construction", "hunter"]
+import time
+import asyncio
+import aiohttp
 
 
-def get_user(name):
-    user_data = Hiscores(name)
-    skill_dict = {skill: user_data.skill(skill, 'experience')
-                  for skill in skills}
+# DO NOT CHANGE ORDER
+skills = ["attack", "defense", "strength", "hitpoints", "ranged", "prayer", "magic", "cooking", "woodcutting", "fletching", "fishing", "firemaking",
+          "crafting", "smithing", "mining", "herblore", "agility", "thieving", "slayer", "farming", "runecrafting", "hunter", "construction"]
 
-    return skill_dict
+url = "https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws?player={}"
 
 
-def get_users(names):
-    users_list = []
-    for name in names:
+async def get_user(session, name, delay):
+    await asyncio.sleep(delay)
+    url_formatted = url.format(name)
+    start = time.time()
+    async with session.get(url_formatted) as user_data:
+        if user_data.status == 404:
+            return f"Username: {name} not found"
+        raw_stats = await user_data.text()
         skill_dict = {
             "measurement": "user_skills",
             "tags": {
                 "name": name
             },
-            "fields": get_user(name)
+            "fields": normalize_stats(raw_stats)
         }
-        # get_user(name)
-        users_list.append(skill_dict)
+        print("user {} xp fetch completed in {} seconds".format(name, time.time() - start))
+        return skill_dict
 
-    return users_list
+
+def normalize_stats(stats_raw):
+    ssv = stats_raw.splitlines()
+    stats_skills = {skill: ssv[i+1].split(',')[2] for i, skill in enumerate(skills)}
+
+    return stats_skills
+
+
+async def get_users_sync(users):
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for i, user in enumerate(users):
+            tasks.append(asyncio.ensure_future(
+                get_user(session, user, i * 0.1)))
+
+        user_data = await asyncio.gather(*tasks)
+        return user_data
+
+
+def get_users(users):
+    return asyncio.run(get_users_sync(users))
