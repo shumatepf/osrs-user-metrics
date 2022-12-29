@@ -1,22 +1,12 @@
-from OSRSBytes import Hiscores
-from datetime import datetime
+import settings
 
-import time
 import asyncio
 import aiohttp
 
-
-# DO NOT CHANGE ORDER
-skills = ["attack", "defense", "strength", "hitpoints", "ranged", "prayer", "magic", "cooking", "woodcutting", "fletching", "fishing", "firemaking",
-          "crafting", "smithing", "mining", "herblore", "agility", "thieving", "slayer", "farming", "runecrafting", "hunter", "construction"]
-
-url = "https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws?player={}"
-
-
 async def get_user(session, name, delay):
     await asyncio.sleep(delay)
-    url_formatted = url.format(name)
-    start = time.time()
+    url_formatted = settings.URL.format(name)
+
     async with session.get(url_formatted) as user_data:
         if user_data.status == 404:
             return f"Username: {name} not found"
@@ -28,13 +18,12 @@ async def get_user(session, name, delay):
             },
             "fields": normalize_stats(raw_stats)
         }
-        print("user {} xp fetch completed in {} seconds".format(name, time.time() - start))
         return skill_dict
 
 
 def normalize_stats(stats_raw):
     ssv = stats_raw.splitlines()
-    stats_skills = {skill: ssv[i+1].split(',')[2] for i, skill in enumerate(skills)}
+    stats_skills = {skill: ssv[i+1].split(',')[2] for i, skill in enumerate(settings.SKILLS)}
 
     return stats_skills
 

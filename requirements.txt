@@ -1,6 +1,11 @@
-flask
+aiohttp
+asyncio
+aiosignal
+APScheduler
+async-timeout
+beautifulsoup4
+Flask
+Flask-APScheduler
 influxdb
 OSRSBytes
-flask_apscheduler
-asyncio
-aiohttp
+requests

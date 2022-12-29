@@ -1,9 +1,11 @@
+import time
 from flask import Flask, request
 from influxdb import InfluxDBClient
 from flask_apscheduler import APScheduler
 
 from datetime import datetime
-import osrs
+from scripts import scrape
+
 import settings
 import json
 import logging
@@ -11,7 +13,6 @@ import logging
 app = Flask(__name__)
 scheduler = APScheduler()
 
-#logging = logging.getLogger()
 logging.basicConfig(filename=settings.LOG_NAME,
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -71,7 +72,7 @@ def user():
         return "Please provide a name"
 
     try:
-        skill_dict = osrs.get_user(name)
+        skill_dict = scrape.get_user(name)
     except:
         return "Please enter a valid user", 400
 
@@ -89,32 +90,46 @@ def write():
     if not data["users"]:
         return "No users provided", 403
 
-    users_dict = osrs.get_users(data["users"])
+    users_dict = scrape.get_users(data["users"])
 
     client.write_points(users_dict)
 
     return users_dict
 
 
-@scheduler.task('cron', minute='0', hour='3', day='*', month='*', day_of_week='*')
-def scrape():
+#@scheduler.task('cron', minute='0', hour='3', day='*', month='*', day_of_week='*')
+@app.route('/scrape_all')
+def scrape_all():
     """
     Reads list of users, scrapes their user data, and dumps into db
     Cron runs every day at 3:00 AM
     """
 
+    
     date = datetime.now().ctime()
     logging.info("Beginning scraping at " + date)
 
-    with open('users.json') as f:
+    # Get list of users
+    # TODO:
+    # - need to find a way to generate json file one time
+    # - if !file, create one?
+    with open('osrs/users.json') as f:
+        start = time.time()
         users = json.load(f)
-        users_dict = osrs.get_users(users)
+        print("file grabbed in {} seconds".format(time.time() - start))
+
+        start = time.time()
+        users_dict = scrape.get_users(users)
+        print("users data fetched in {} seconds".format(time.time() - start))
+
+        start = time.time()
         client.write_points(users_dict)
+        print("data uploaded in {} seconds".format(time.time() - start))
     
     date = datetime.now().ctime()
     logging.info("Finished scraping at " + date)
 
-    return True
+    return "Done"
 
 
 if __name__ == "__main__":
