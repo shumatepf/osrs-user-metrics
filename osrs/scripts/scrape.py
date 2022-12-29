@@ -1,9 +1,37 @@
+from bs4 import BeautifulSoup
+
+import math
 import settings
 
 import asyncio
 import aiohttp
 
+
+def get_users(users):
+    """
+    Get users' stats concurrently
+    """
+    return asyncio.run(get_users_sync(users))
+
+
+async def get_users_sync(users):
+    """
+    Asyncio event loop harness for getting users' stats
+    """
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for i, user in enumerate(users):
+            tasks.append(asyncio.ensure_future(
+                get_user(session, user, i * 0.1)))
+
+        user_data = await asyncio.gather(*tasks)
+        return user_data
+
+
 async def get_user(session, name, delay):
+    """
+    Get single user's stats coroutine
+    """
     await asyncio.sleep(delay)
     url_formatted = settings.URL.format(name)
 
@@ -22,22 +50,66 @@ async def get_user(session, name, delay):
 
 
 def normalize_stats(stats_raw):
+    """
+    Stats as space/comma separated values to dict
+    """
     ssv = stats_raw.splitlines()
-    stats_skills = {skill: ssv[i+1].split(',')[2] for i, skill in enumerate(settings.SKILLS)}
+    stats_skills = {skill: ssv[i+1].split(',')[2]
+                    for i, skill in enumerate(settings.SKILLS)}
 
     return stats_skills
 
 
-async def get_users_sync(users):
+def get_usernames(random_ranks):
+    """
+    Get usernames based on list of ranks from the hiscores html pages concurrently
+    """
+    return asyncio.run(get_usernames_sync(random_ranks))
+
+
+async def get_usernames_sync(random_ranks):
+    """
+    Asyncio event loop harness for getting usernames
+    """
     async with aiohttp.ClientSession() as session:
         tasks = []
-        for i, user in enumerate(users):
+        for i, rank in enumerate(random_ranks):
             tasks.append(asyncio.ensure_future(
-                get_user(session, user, i * 0.1)))
+                get_page(session, rank, i * 0.1)))
+        username_list = await asyncio.gather(*tasks)
+        return username_list
 
-        user_data = await asyncio.gather(*tasks)
-        return user_data
+
+async def http_request(session, params):
+    """
+    http interface for getting html pages
+    """
+    async with session.get(settings.URL_HTML, params=params) as response:
+        page = await response.text()
+        return page
 
 
-def get_users(users):
-    return asyncio.run(get_users_sync(users))
+async def get_page(session, rank, delay):
+    """
+    Get single username from hiscores page coroutine
+    """
+    await asyncio.sleep(delay)
+
+    page_num = math.ceil(rank / 25)
+    index = (rank - 1) % 25
+    page = await http_request(session, {'table': 0, 'page': page_num})
+    return get_username_from_page(page, index)
+
+
+def get_username_from_page(page, index):
+    """
+    Parse html page to find user at index
+    """
+    page_soup = BeautifulSoup(page, "html.parser")
+    table = page_soup.find(id='contentHiscores').find("table").find("tbody")
+    rows = table.find_all('tr')
+    rows.pop(0)  # first row is always empty
+    row = rows[index].find("a").text
+    name = row.replace("\u00a0", " ")
+
+    return name
