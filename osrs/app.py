@@ -113,7 +113,7 @@ def scrape_all():
         logging.info(f"{settings.USER_FILE} does not exist, beginning file creation...")
 
         try:
-            random_ranks = random.sample(range(500000, 1000000), 2000) # this needs to be replaced at the command line
+            random_ranks = random.sample(range(500000, 1000000), 1) # this needs to be replaced at the command line
             list_users = scrape.get_usernames(random_ranks) # this is a lot of http requests ...
             with open(settings.USER_FILE, "w") as f:
                 json.dump(list_users, f)
@@ -142,6 +142,10 @@ def scrape_all():
 
     return "Done" # ??
 
+@app.route("/")
+def nothing():
+    scrape_all()
+    return "Done"
 
 if __name__ == "__main__":
     app.run()
