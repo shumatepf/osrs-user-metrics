@@ -54,7 +54,7 @@ def normalize_stats(stats_raw):
     Stats as space/comma separated values to dict
     """
     ssv = stats_raw.splitlines()
-    stats_skills = {skill: ssv[i+1].split(',')[2]
+    stats_skills = {skill: int(ssv[i+1].split(',')[2])
                     for i, skill in enumerate(settings.SKILLS)}
 
     return stats_skills
