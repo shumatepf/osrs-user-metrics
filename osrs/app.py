@@ -99,8 +99,7 @@ def write():
     return users_dict
 
 
-# @scheduler.task('cron', minute='0', hour='3', day='*', month='*', day_of_week='*')
-@app.route('/scrape_all')
+@scheduler.task('cron', minute='0', hour='3', day='*', month='*', day_of_week='*')
 def scrape_all():
     """
     Reads list of users, scrapes their user data, and dumps into db
