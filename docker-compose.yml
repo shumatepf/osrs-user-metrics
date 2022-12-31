@@ -21,7 +21,7 @@ services:
     networks:
       - osrs-network
     volumes:
-      - osrs-metrics:/usr/src/app
+      - osrs-metrics:/usr/src/osrs
 networks:
   osrs-network:
 volumes:
