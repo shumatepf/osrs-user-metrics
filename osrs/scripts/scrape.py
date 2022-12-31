@@ -33,7 +33,7 @@ async def get_user(session, name, delay):
     Get single user's stats coroutine
     """
     await asyncio.sleep(delay)
-    url_formatted = settings.URL.format(name)
+    url_formatted = settings.URL_API.format(name)
 
     async with session.get(url_formatted) as user_data:
         if user_data.status == 404:
@@ -80,15 +80,6 @@ async def get_usernames_sync(random_ranks):
         return username_list
 
 
-async def http_request(session, params):
-    """
-    http interface for getting html pages
-    """
-    async with session.get(settings.URL_HTML, params=params) as response:
-        page = await response.text()
-        return page
-
-
 async def get_page(session, rank, delay):
     """
     Get single username from hiscores page coroutine
@@ -97,8 +88,9 @@ async def get_page(session, rank, delay):
 
     page_num = math.ceil(rank / 25)
     index = (rank - 1) % 25
-    page = await http_request(session, {'table': 0, 'page': page_num})
-    return get_username_from_page(page, index)
+    async with session.get(settings.URL_HTML, params={'table': 0, 'page': page_num}, timeout=30) as response:
+        page = await response.text()
+        return get_username_from_page(page, index)
 
 
 def get_username_from_page(page, index):

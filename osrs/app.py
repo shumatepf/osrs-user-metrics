@@ -1,3 +1,5 @@
+import os
+import random
 import time
 from flask import Flask, request
 from influxdb import InfluxDBClient
@@ -54,7 +56,7 @@ def index():
         return "Please provide a name"
 
     q_r = client.query(f'select * from user_skills;')
-    print(q_r)
+    # print(q_r)
     result = q_r.get_points(tags={'name': name})
     return list(result)
 
@@ -97,7 +99,7 @@ def write():
     return users_dict
 
 
-#@scheduler.task('cron', minute='0', hour='3', day='*', month='*', day_of_week='*')
+# @scheduler.task('cron', minute='0', hour='3', day='*', month='*', day_of_week='*')
 @app.route('/scrape_all')
 def scrape_all():
     """
@@ -105,31 +107,41 @@ def scrape_all():
     Cron runs every day at 3:00 AM
     """
 
-    
-    date = datetime.now().ctime()
-    logging.info("Beginning scraping at " + date)
+    logging.info(f"Beginning scraping at {datetime.now().ctime()}")
 
-    # Get list of users
-    # TODO:
-    # - need to find a way to generate json file one time
-    # - if !file, create one?
-    with open('osrs/users.json') as f:
+    if not os.path.exists(settings.USER_FILE):
+        start = time.time()
+        logging.info(f"{settings.USER_FILE} does not exist, beginning file creation...")
+
+        try:
+            random_ranks = random.sample(range(500000, 1000000), 2000) # this needs to be replaced at the command line
+            list_users = scrape.get_usernames(random_ranks) # this is a lot of http requests ...
+            with open(settings.USER_FILE, "w") as f:
+                json.dump(list_users, f)
+        except Exception: # NEED BETTER EXCEPTION
+            logging.info(f"{settings.USER_FILE} creation failed, aborting at {datetime.now().ctime()}")
+            return "Failed" # ?? need a good exit method
+
+        logging.info(f"{settings.USER_FILE} created in {time.time() - start} seconds")
+        print(f"{settings.USER_FILE} created in {time.time() - start} seconds")
+
+    with open(settings.USER_FILE) as f:
         start = time.time()
         users = json.load(f)
-        print("file grabbed in {} seconds".format(time.time() - start))
+        print(f"file grabbed in {time.time() - start} seconds")
 
         start = time.time()
-        users_dict = scrape.get_users(users)
-        print("users data fetched in {} seconds".format(time.time() - start))
+        users_dict = scrape.get_users(users) # this is a lot of http requests ...
+        print(f"users data fetched in {time.time() - start} seconds")
 
         start = time.time()
         client.write_points(users_dict)
-        print("data uploaded in {} seconds".format(time.time() - start))
-    
-    date = datetime.now().ctime()
-    logging.info("Finished scraping at " + date)
+        print(f"data uploaded in {time.time() - start} seconds")
 
-    return "Done"
+    #date = datetime.now().ctime()
+    logging.info(f"Finished scraping at {datetime.now().ctime()}")
+
+    return "Done" # ??
 
 
 if __name__ == "__main__":
