@@ -56,7 +56,6 @@ def index():
         return "Please provide a name"
 
     q_r = client.query(f'select * from user_skills;')
-    # print(q_r)
     result = q_r.get_points(tags={'name': name})
     return list(result)
 
@@ -109,20 +108,25 @@ def scrape_all():
     logging.info(f"Beginning scraping at {datetime.now().ctime()}")
 
     if not os.path.exists(settings.USER_FILE):
-        start = time.time()
+        logging.info("File not found, exiting...")
+        return "Error: file 'users.json' does not exist"
+        """start = time.time()
         logging.info(f"{settings.USER_FILE} does not exist, beginning file creation...")
 
         try:
-            random_ranks = random.sample(range(500000, 1000000), 1) # this needs to be replaced at the command line
+            random_ranks = random.sample(range(500000, 700000), 1000) # this needs to be replaced at the command line
             list_users = scrape.get_usernames(random_ranks) # this is a lot of http requests ...
+            list_users.append("Friendless98")
+            list_users.append("treechopperr")
             with open(settings.USER_FILE, "w") as f:
                 json.dump(list_users, f)
-        except Exception: # NEED BETTER EXCEPTION
+        except Exception as e: # NEED BETTER EXCEPTION
+            logging.info(f"{e}")
             logging.info(f"{settings.USER_FILE} creation failed, aborting at {datetime.now().ctime()}")
             return "Failed" # ?? need a good exit method
 
         logging.info(f"{settings.USER_FILE} created in {time.time() - start} seconds")
-        print(f"{settings.USER_FILE} created in {time.time() - start} seconds")
+        print(f"{settings.USER_FILE} created in {time.time() - start} seconds")"""
 
     with open(settings.USER_FILE) as f:
         start = time.time()
@@ -131,20 +135,22 @@ def scrape_all():
 
         start = time.time()
         users_dict = scrape.get_users(users) # this is a lot of http requests ...
+        print(users_dict)
         print(f"users data fetched in {time.time() - start} seconds")
 
         start = time.time()
+        #print(users_dict)
         client.write_points(users_dict)
         print(f"data uploaded in {time.time() - start} seconds")
 
-    #date = datetime.now().ctime()
     logging.info(f"Finished scraping at {datetime.now().ctime()}")
 
     return "Done" # ??
 
 @app.route("/")
 def nothing():
-    scrape_all()
+    print(scrape_all())
+    print("Hello")
     return "Done"
 
 if __name__ == "__main__":
