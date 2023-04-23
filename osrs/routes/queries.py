@@ -3,6 +3,13 @@ from osrs import client
 from osrs.routes import query
 from datetime import datetime
 
+from osrs import cron
+
+@query.route('/dump', methods=['GET'])
+def stupid():
+    print("dump")
+    return cron.scrape_all()
+
 @query.route('/', methods=['GET'])
 def name():
     """

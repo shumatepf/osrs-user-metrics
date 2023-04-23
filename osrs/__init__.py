@@ -2,7 +2,8 @@ import os
 import random
 import time
 from flask import Flask
-from influxdb import InfluxDBClient
+from influxdb_client import InfluxDBClient
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 from datetime import datetime
 
@@ -10,7 +11,12 @@ import osrs.settings as settings
 import json
 import logging
 
-client = InfluxDBClient(settings.HOST, settings.PORT)
+url = f"http://{settings.HOST}:{settings.PORT}"
+#client = InfluxDBClient(settings.HOST, settings.PORT)
+client = InfluxDBClient(url=url, database=settings.DB_NAME)
+write_api = client.write_api(write_options=SYNCHRONOUS)
+query_api = client.query_api()
+
 from osrs.cron import scheduler
 
 logging.basicConfig(filename=settings.LOG_NAME,
@@ -28,8 +34,8 @@ def create_app():
 
     app.register_blueprint(query, url_prefix="/search")
 
-    client.create_database(settings.DB_NAME)
-    client.switch_database(settings.DB_NAME)
+    # client.create_database(settings.DB_NAME)
+    # client.switch_database(settings.DB_NAME)
 
     scheduler.init_app(app)
     scheduler.start()
