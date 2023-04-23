@@ -5,7 +5,6 @@ from flask import Flask
 from influxdb import InfluxDBClient
 
 from datetime import datetime
-from osrs.scripts import scrape
 
 import osrs.settings as settings
 import json

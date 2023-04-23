@@ -7,7 +7,7 @@ from datetime import datetime
 from flask_apscheduler import APScheduler
 
 from osrs import settings, logging, client
-from osrs.scripts import scrape
+from osrs_lib import hiscores
 
 scheduler = APScheduler()
 
@@ -47,7 +47,7 @@ def scrape_all():
         print(f"file grabbed in {time.time() - start} seconds")
 
         start = time.time()
-        users_dict = scrape.get_users(users) # this is a lot of http requests ...
+        users_dict = hiscores.get_users(users) # this is a lot of http requests ...
         print(users_dict)
         print(f"users data fetched in {time.time() - start} seconds")
 

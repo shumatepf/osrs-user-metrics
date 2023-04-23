@@ -7,5 +7,5 @@ beautifulsoup4
 Flask
 Flask-APScheduler
 influxdb
-OSRSBytes
 requests
+osrs-lib
