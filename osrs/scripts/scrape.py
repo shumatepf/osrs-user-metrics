@@ -1,8 +1,9 @@
+import math
+
 from bs4 import BeautifulSoup
 
-import math
-from scripts.errors import BadHiScoresPage, RequestFailed, UserNotFound
-import settings
+from osrs.scripts.errors import BadHiScoresPage, RequestFailed, UserNotFound
+import osrs.settings
 
 import asyncio
 import aiohttp
