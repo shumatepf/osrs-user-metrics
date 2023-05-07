@@ -7,11 +7,12 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 
 from datetime import datetime
 
-import osrs.settings as settings
+from osrs import settings
 import json
 import logging
 
 url = f"http://{settings.HOST}:{settings.PORT}"
+print(url)
 #client = InfluxDBClient(settings.HOST, settings.PORT)
 client = InfluxDBClient(url=url, database=settings.DB_NAME)
 write_api = client.write_api(write_options=SYNCHRONOUS)
@@ -30,9 +31,10 @@ logging.basicConfig(filename=settings.LOG_NAME,
 def create_app():
     app = Flask(__name__)
 
-    from osrs.routes import query
+    from osrs.routes import query, index
 
     app.register_blueprint(query, url_prefix="/search")
+    app.register_blueprint(index, url_prefix="")
 
     # client.create_database(settings.DB_NAME)
     # client.switch_database(settings.DB_NAME)

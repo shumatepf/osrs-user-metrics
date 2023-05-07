@@ -48,12 +48,10 @@ def scrape_all():
 
         start = time.time()
         users_dict = hiscores.get_stats(users) # this is a lot of http requests ...
-        print(users_dict)
         print(f"users data fetched in {time.time() - start} seconds")
 
         start = time.time()
-        #print(users_dict)
-        write_api.write(bucket="my-bucket", org="test", record=users_dict)
+        write_api.write(bucket=settings.DB_NAME, org="osrs", record=users_dict)
         print(f"data uploaded in {time.time() - start} seconds")
 
     logging.info(f"Finished scraping at {datetime.now().ctime()}")
