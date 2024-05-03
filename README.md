@@ -7,3 +7,6 @@ in only a few steps.
 Old School Runescape is an MMORPG with a heavy focus on tedious exp grinds. Player exp data is published to the hiscores page (if that players' level is high enough), which can be compared 
 against all other players on the hiscores. Currently, the hiscores page only displays the most up-to-date character exp. This app aims to provide historic access to hiscores via a 
 time series database. 
+
+# Building
+

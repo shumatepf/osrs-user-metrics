@@ -3,10 +3,10 @@ import os
 HOST = os.getenv('HOST', 'localhost')
 PORT = 8086
 
-DB_NAME = os.getenv('DB_NAME', 'osrsdb_test')
+DB_NAME = os.getenv('DB_NAME', 'osrs_user_metrics')
 LOG_NAME = os.getenv('LOG_NAME', 'logs.log')
 
-TOKEN = os.getenv('TOKEN', 'abcdefg')
+TOKEN = os.getenv('INFLUXDB_TOKEN', 'nothing')
 ORG= os.getenv('ORG', 'osrs')
 
 USER_FILE = "users.json"

@@ -9,6 +9,7 @@ services:
       - osrs-network
     environment:
       - INFLUXDB_HTTP_ENABLED=true
+      - INFLUXDB_HTTP_FLUX_ENABLED=true
     volumes:
       - influxdb:/var/lib/influxdb
   osrs-metrics:
@@ -17,7 +18,9 @@ services:
       - "5000:5000"
     environment:
       - HOST=influxdb
-      - DB_NAME=osrs_hs_metrics
+      - DB_NAME=osrs_user_metrics
+      - ORG=osrs
+      - INFLUXDB_TOKEN=<<REPLACE_ME>>
     links:
       - influxdb
     networks:

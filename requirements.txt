@@ -10,3 +10,4 @@ influxdb
 requests
 osrs-lib
 influxdb-client
+pandas

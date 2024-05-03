@@ -9,4 +9,4 @@ RUN pip install -r requirements.txt
 
 COPY ./osrs /osrs
 
-CMD ["python3", "-m", "flask", "--app", "osrs", "run"]
+CMD ["python3", "-m", "flask", "--app", ".", "run", "-h", "0.0.0.0"]

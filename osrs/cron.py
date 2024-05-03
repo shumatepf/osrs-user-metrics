@@ -11,7 +11,7 @@ from osrs_lib import hiscores
 
 scheduler = APScheduler()
 
-@scheduler.task('cron', minute='0', hour='3', day='*', month='*', day_of_week='*')
+@scheduler.task('cron', minute='*', hour='*', day='*', month='*', day_of_week='*')
 def scrape_all():
     """
     Reads list of users, scrapes their user data, and dumps into db

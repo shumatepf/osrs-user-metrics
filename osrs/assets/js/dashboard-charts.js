@@ -64,7 +64,6 @@ function updatePIChart() {
     var getData = $.get(`search/${name}/diff?from=${diffFrom}&to=${diffTo}`)
     getData.done(function (results) {
         resultsJSON = JSON.parse(results)
-        //console.log(resultsJSON)
 
         values = Object.values(resultsJSON)
         numSkills = 0

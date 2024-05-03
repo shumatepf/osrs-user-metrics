@@ -12,9 +12,9 @@ import json
 import logging
 
 url = f"http://{settings.HOST}:{settings.PORT}"
-print(url)
-#client = InfluxDBClient(settings.HOST, settings.PORT)
-client = InfluxDBClient(url=url, database=settings.DB_NAME)
+
+client = InfluxDBClient(url=url, token=settings.TOKEN, org=settings.ORG)
+
 write_api = client.write_api(write_options=SYNCHRONOUS)
 query_api = client.query_api()
 
@@ -26,8 +26,6 @@ logging.basicConfig(filename=settings.LOG_NAME,
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
-
-
 def create_app():
     app = Flask(__name__)
 
@@ -35,9 +33,6 @@ def create_app():
 
     app.register_blueprint(query, url_prefix="/search")
     app.register_blueprint(index, url_prefix="")
-
-    # client.create_database(settings.DB_NAME)
-    # client.switch_database(settings.DB_NAME)
 
     scheduler.init_app(app)
     scheduler.start()
